@@ -1,0 +1,124 @@
+/* Global Styles */
+body {
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    background: #f4f4f9;
+    margin: 0;
+    padding: 0;
+}
+
+/* Header */
+header {
+    background: #4CAF50;
+    color: white;
+    padding: 15px;
+    font-size: 22px;
+    font-weight: bold;
+    border-radius: 5px;
+}
+
+/* Container */
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Input Fields */
+input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Buttons */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #45a049;
+}
+
+/* Member Details */
+.details {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 5px;
+    font-size: 18px;
+    text-align: left;
+}
+
+.details p {
+    margin: 8px 0;
+    padding: 8px;
+    background: #e3e3e3;
+    border-radius: 5px;
+}
+
+/* Transaction History */
+.transaction-history {
+    margin-top: 20px;
+    text-align: left;
+    background: white;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.transaction-history table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.transaction-history th, .transaction-history td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+.transaction-history th {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Print Button */
+.print-button {
+    margin-top: 20px;
+    padding: 12px;
+    background: #2196F3;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.print-button:hover {
+    background: #1976D2;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .container {
+        width: 90%;
+    }
+    
+    input, button {
+        font-size: 14px;
+    }
+}
