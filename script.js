@@ -1,55 +1,60 @@
-// Import Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+document.addEventListener("DOMContentLoaded", function () {
+    // Initialize Firebase
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
 
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    // Fetch Member Details
+    function fetchDetails() {
+        const accountNumberInput = document.getElementById("accountNumber");
+        
+        // Check if element exists
+        if (!accountNumberInput) {
+            console.error("Error: Account Number input field not found!");
+            return;
+        }
 
-// Function to Fetch Member Details
-async function fetchDetails(accountNumber) {
-  try {
-    console.log(`🔍 Fetching details for Account Number: ${accountNumber}`);
+        const accountNumber = accountNumberInput.value.trim();
+        if (accountNumber === "") {
+            alert("Please enter an account number!");
+            return;
+        }
 
-    const docRef = doc(db, "members", accountNumber);
-    const docSnap = await getDoc(docRef);
+        console.log("Fetching details for Account Number:", accountNumber);
 
-    if (docSnap.exists()) {
-      console.log("✅ Data found:", docSnap.data());
+        db.collection("members")
+            .where("AccountNumber", "==", accountNumber)
+            .get()
+            .then((querySnapshot) => {
+                if (querySnapshot.empty) {
+                    console.log("No member found!");
+                    alert("No member found with this account number.");
+                    return;
+                }
 
-      // Populate HTML fields
-      document.getElementById("savings").innerText = docSnap.data().Savings || "--";
-      document.getElementById("loanInterest").innerText = docSnap.data().LoanInterest || "--";
-      document.getElementById("loanPaid").innerText = docSnap.data().LoanPaid || "--";
-      document.getElementById("penalty").innerText = docSnap.data().Penalty || "--";
-      document.getElementById("loanTaken").innerText = docSnap.data().LoanTaken || "--";
-
-    } else {
-      console.log("❌ No member found!");
-      alert("No member found with this account number.");
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    document.getElementById("savings").innerText = data.Savings || "--";
+                    document.getElementById("loanInterest").innerText = data.LoanInterest || "--";
+                    document.getElementById("loanPaid").innerText = data.LoanPaid || "--";
+                    document.getElementById("penalty").innerText = data.Penalty || "--";
+                    document.getElementById("loanTaken").innerText = data.LoanTaken || "--";
+                });
+            })
+            .catch((error) => {
+                console.error("Error fetching details:", error);
+                alert("Failed to fetch member details. Check console for errors.");
+            });
     }
-  } catch (error) {
-    console.error("🔥 Firestore Error:", error);
-    alert("Error fetching data. Check console for details.");
-  }
-}
 
-// Event Listener for Fetch Button
-document.getElementById("fetchBtn").addEventListener("click", () => {
-  const accountNumber = document.getElementById("accountNumber").value.trim();
-  if (accountNumber) {
-    fetchDetails(accountNumber);
-  } else {
-    alert("⚠️ Please enter a valid account number.");
-  }
+    // Assign function to global scope so it works in HTML onclick
+    window.fetchDetails = fetchDetails;
 });
