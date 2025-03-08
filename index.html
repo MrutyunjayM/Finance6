@@ -4,42 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Passbook</title>
-    <link rel="stylesheet" href="styles.css">
-
-    <!-- Firebase SDK (Ensure correct version) -->
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            font-weight: bold;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .details {
+            margin-top: 20px;
+        }
+        .details p {
+            font-size: 16px;
+            padding: 5px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        table {
+            width: 100%;
+            margin-top: 10px;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: #007bff;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>📖 Finance Passbook</h1>
 
+    <h2>📖 Finance Passbook</h2>
+    
     <div class="container">
-        <h2>🔍 Transaction Lookup</h2>
-        <input type="text" id="accountInput" placeholder="Enter Account Number">
-        <button onclick="fetchDetails()">Fetch Details</button>
-        
-        <h2>📋 Member Details</h2>
-        <p>Name: <span id="memberName">-</span></p>
-        <p>💰 Savings: <span id="savings">-</span></p>
-        <p>📊 Loan Interest: <span id="loanInterest">-</span></p>
-        <p>✅ Loan Paid: <span id="loanPaid">-</span></p>
-        <p>⚠️ Penalty: <span id="penalty">-</span></p>
-        <p>💳 Loan Taken: <span id="loanTaken">-</span></p>
+        <div class="input-group">
+            <label for="accountInput">🔢 Enter Account Number:</label>
+            <input type="text" id="accountInput" placeholder="Enter Account Number">
+        </div>
+        <button id="fetchBtn" class="btn">🔍 Fetch Transactions</button>
 
-        <h2>📑 Transaction History</h2>
-        <table id="transactionTable">
-            <tr>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Amount</th>
-                <th>Type</th>
-            </tr>
+        <div class="details">
+            <h3>📋 Member Details</h3>
+            <p><strong>👤 Name:</strong> <span id="name">--</span></p>
+            <p><strong>💰 Savings:</strong> <span id="savings">--</span></p>
+            <p><strong>📊 Loan Interest:</strong> <span id="loanInterest">--</span></p>
+            <p><strong>✅ Loan Paid:</strong> <span id="loanPaid">--</span></p>
+            <p><strong>⚠️ Penalty:</strong> <span id="penalty">--</span></p>
+            <p><strong>💳 Loan Taken:</strong> <span id="loanTaken">--</span></p>
+        </div>
+
+        <h3>📑 Transaction History</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Amount</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody id="transactionTable">
+                <tr>
+                    <td colspan="4">No transactions found</td>
+                </tr>
+            </tbody>
         </table>
-
-        <button onclick="printPassbook()">🖨 Print Passbook</button>
     </div>
 
-    <!-- Include JS at the end -->
-    <script src="script.js" defer></script>
+    <script type="module" src="script.js"></script>
+
 </body>
 </html>

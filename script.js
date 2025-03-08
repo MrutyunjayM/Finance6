@@ -1,84 +1,112 @@
-// ✅ Firebase Configuration
+// Import Firebase modules
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+// Firebase configuration (Replace with your actual Firebase config)
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
     projectId: "YOUR_PROJECT_ID",
     storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
     appId: "YOUR_APP_ID"
 };
 
-// ✅ Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-// ✅ Fetch Member Details
+// Function to fetch member details
 async function fetchDetails() {
     let accountNumber = document.getElementById("accountInput").value.trim();
-    if (accountNumber === "") {
+
+    if (!accountNumber) {
         alert("Please enter an Account Number!");
         return;
     }
 
-    try {
-        let memberRef = db.collection("members").where("AccountNumber", "==", accountNumber);
-        let snapshot = await memberRef.get();
+    console.log("Fetching details for Account Number:", accountNumber); // Debug log
 
-        if (snapshot.empty) {
+    try {
+        const membersRef = collection(db, "members");
+        const q = query(membersRef, where("AccountNumber", "==", accountNumber));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            console.log("No member found!");
             alert("No member found with this Account Number!");
+            resetMemberDetails();
             return;
         }
 
-        snapshot.forEach(doc => {
+        querySnapshot.forEach((doc) => {
             let data = doc.data();
-            document.getElementById("memberName").innerText = data.Name || "-";
-            document.getElementById("savings").innerText = data.Savings || "0";
-            document.getElementById("loanInterest").innerText = data.LoanInterest || "0";
-            document.getElementById("loanPaid").innerText = data.LoanPaid || "0";
-            document.getElementById("penalty").innerText = data.Penalty || "0";
-            document.getElementById("loanTaken").innerText = data.LoanTaken || "0";
+            console.log("Member Data:", data); // Debug log
 
-            fetchTransactions(accountNumber);
+            // Update HTML with fetched data
+            document.getElementById("name").innerText = data.Name || "--";
+            document.getElementById("savings").innerText = data.Savings || "--";
+            document.getElementById("loanInterest").innerText = data.LoanInterest || "--";
+            document.getElementById("loanPaid").innerText = data.LoanPaid || "--";
+            document.getElementById("penalty").innerText = data.Penalty || "--";
+            document.getElementById("loanTaken").innerText = data.LoanTaken || "--";
         });
+
+        // Fetch Transactions
+        fetchTransactions(accountNumber);
+
     } catch (error) {
-        console.error("Error fetching details: ", error);
-        alert("Error fetching details. Please try again.");
+        console.error("Error fetching member data:", error);
+        alert("Error fetching data. Check console for details.");
     }
 }
 
-// ✅ Fetch Transactions
+// Function to reset member details if no data is found
+function resetMemberDetails() {
+    document.getElementById("name").innerText = "--";
+    document.getElementById("savings").innerText = "--";
+    document.getElementById("loanInterest").innerText = "--";
+    document.getElementById("loanPaid").innerText = "--";
+    document.getElementById("penalty").innerText = "--";
+    document.getElementById("loanTaken").innerText = "--";
+}
+
+// Function to fetch transaction details
 async function fetchTransactions(accountNumber) {
-    let table = document.getElementById("transactionTable");
-    table.innerHTML = `<tr><th>Date</th><th>Description</th><th>Amount</th><th>Type</th></tr>`; // Reset table
+    console.log("Fetching transactions for Account Number:", accountNumber); // Debug log
 
     try {
-        let transactionRef = db.collection("transactions").where("AccountNumber", "==", accountNumber);
-        let snapshot = await transactionRef.orderBy("Date", "desc").get();
+        const transactionsRef = collection(db, "transactions");
+        const q = query(transactionsRef, where("AccountNumber", "==", accountNumber));
+        const querySnapshot = await getDocs(q);
 
-        if (snapshot.empty) {
-            let row = table.insertRow();
-            row.insertCell(0).innerText = "-";
-            row.insertCell(1).innerText = "No transactions found";
-            row.insertCell(2).innerText = "-";
-            row.insertCell(3).innerText = "-";
+        let transactionTable = document.getElementById("transactionTable");
+        transactionTable.innerHTML = ""; // Clear previous data
+
+        if (querySnapshot.empty) {
+            console.log("No transactions found!");
+            transactionTable.innerHTML = "<tr><td colspan='4'>No transactions found</td></tr>";
             return;
         }
 
-        snapshot.forEach(doc => {
+        querySnapshot.forEach((doc) => {
             let data = doc.data();
-            let row = table.insertRow();
-            row.insertCell(0).innerText = new Date(data.Date.toDate()).toLocaleDateString();
-            row.insertCell(1).innerText = data.Description || "-";
-            row.insertCell(2).innerText = data.Amount || "0";
-            row.insertCell(3).innerText = data.Type || "-";
+            console.log("Transaction Data:", data); // Debug log
+
+            let row = `<tr>
+                <td>${data.Date || "--"}</td>
+                <td>${data.Description || "--"}</td>
+                <td>${data.Amount || "--"}</td>
+                <td>${data.Type || "--"}</td>
+            </tr>`;
+            transactionTable.innerHTML += row;
         });
+
     } catch (error) {
-        console.error("Error fetching transactions: ", error);
-        alert("Error fetching transactions. Please try again.");
+        console.error("Error fetching transactions:", error);
+        alert("Error fetching transactions. Check console for details.");
     }
 }
 
-// ✅ Print Passbook
-function printPassbook() {
-    window.print();
-}
+// Attach event listener to button
+document.getElementById("fetchBtn").addEventListener("click", fetchDetails);
