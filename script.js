@@ -1,8 +1,7 @@
-// Import Firebase modules
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase configuration (Replace with your actual Firebase config)
+// Firebase Config
 const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
@@ -16,97 +15,43 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Function to fetch member details
+// Fetch Member Details
 async function fetchDetails() {
-    let accountNumber = document.getElementById("accountInput").value.trim();
+    const accountNumber = document.getElementById("accountInput").value.trim();
 
     if (!accountNumber) {
-        alert("Please enter an Account Number!");
+        alert("Please enter an account number.");
         return;
     }
 
-    console.log("Fetching details for Account Number:", accountNumber); // Debug log
+    console.log("Fetching details for Account Number: ", accountNumber);
 
     try {
         const membersRef = collection(db, "members");
         const q = query(membersRef, where("AccountNumber", "==", accountNumber));
         const querySnapshot = await getDocs(q);
 
-        if (querySnapshot.empty) {
+        if (!querySnapshot.empty) {
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                console.log("Member Data:", data);
+
+                document.getElementById("name").textContent = data.Name || "--";
+                document.getElementById("savings").textContent = data.Savings || "--";
+                document.getElementById("loanInterest").textContent = data.LoanInterest || "--";
+                document.getElementById("loanPaid").textContent = data.LoanPaid || "--";
+                document.getElementById("penalty").textContent = data.Penalty || "--";
+                document.getElementById("loanTaken").textContent = data.LoanTaken || "--";
+            });
+        } else {
             console.log("No member found!");
-            alert("No member found with this Account Number!");
-            resetMemberDetails();
-            return;
+            alert("No member found for this account number.");
         }
-
-        querySnapshot.forEach((doc) => {
-            let data = doc.data();
-            console.log("Member Data:", data); // Debug log
-
-            // Update HTML with fetched data
-            document.getElementById("name").innerText = data.Name || "--";
-            document.getElementById("savings").innerText = data.Savings || "--";
-            document.getElementById("loanInterest").innerText = data.LoanInterest || "--";
-            document.getElementById("loanPaid").innerText = data.LoanPaid || "--";
-            document.getElementById("penalty").innerText = data.Penalty || "--";
-            document.getElementById("loanTaken").innerText = data.LoanTaken || "--";
-        });
-
-        // Fetch Transactions
-        fetchTransactions(accountNumber);
-
     } catch (error) {
-        console.error("Error fetching member data:", error);
-        alert("Error fetching data. Check console for details.");
+        console.error("Error fetching details:", error);
+        alert("Error fetching details. Check console for more info.");
     }
 }
 
-// Function to reset member details if no data is found
-function resetMemberDetails() {
-    document.getElementById("name").innerText = "--";
-    document.getElementById("savings").innerText = "--";
-    document.getElementById("loanInterest").innerText = "--";
-    document.getElementById("loanPaid").innerText = "--";
-    document.getElementById("penalty").innerText = "--";
-    document.getElementById("loanTaken").innerText = "--";
-}
-
-// Function to fetch transaction details
-async function fetchTransactions(accountNumber) {
-    console.log("Fetching transactions for Account Number:", accountNumber); // Debug log
-
-    try {
-        const transactionsRef = collection(db, "transactions");
-        const q = query(transactionsRef, where("AccountNumber", "==", accountNumber));
-        const querySnapshot = await getDocs(q);
-
-        let transactionTable = document.getElementById("transactionTable");
-        transactionTable.innerHTML = ""; // Clear previous data
-
-        if (querySnapshot.empty) {
-            console.log("No transactions found!");
-            transactionTable.innerHTML = "<tr><td colspan='4'>No transactions found</td></tr>";
-            return;
-        }
-
-        querySnapshot.forEach((doc) => {
-            let data = doc.data();
-            console.log("Transaction Data:", data); // Debug log
-
-            let row = `<tr>
-                <td>${data.Date || "--"}</td>
-                <td>${data.Description || "--"}</td>
-                <td>${data.Amount || "--"}</td>
-                <td>${data.Type || "--"}</td>
-            </tr>`;
-            transactionTable.innerHTML += row;
-        });
-
-    } catch (error) {
-        console.error("Error fetching transactions:", error);
-        alert("Error fetching transactions. Check console for details.");
-    }
-}
-
-// Attach event listener to button
+// Event Listener
 document.getElementById("fetchBtn").addEventListener("click", fetchDetails);
